@@ -7,6 +7,7 @@ import ChatMain from "./chat-main"
 import type { Contact, Message, ReplyTo } from "@/lib/types"
 import { initialContacts, initialMessages } from "@/lib/data"
 import { setupWebSocket } from "@/lib/websocket"
+import { getContactsAction } from "@/lib/action/auth-action"
 
 interface ChatLayoutProps {
   authToken?: string
@@ -16,15 +17,27 @@ interface ChatLayoutProps {
 }
 
 export default function ChatLayout({ authToken, apiEndpoint, wsEndpoint, isWidget = false }: ChatLayoutProps) {
-  const [contacts, setContacts] = useState<Contact[]>(initialContacts)
+  const [contacts, setContacts] = useState<Contact[]>([])
   const [archivedContacts, setArchivedContacts] = useState<Contact[]>([])
   const [messages, setMessages] = useState<Message[]>(initialMessages)
-  const [activeContact, setActiveContact] = useState<Contact | null>(initialContacts[0])
+  const [activeContact, setActiveContact] = useState<Contact | null>(null)
   const [isMobileView, setIsMobileView] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
   const [wsConnection, setWsConnection] = useState<WebSocket | null>(null)
 
   const isMobile = useMediaQuery("(max-width: 768px)")
+
+
+  const loadContacts = async () => {
+    const data = await getContactsAction({userId: '1', token: ''})
+    setContacts(data)
+    console.log(data);
+
+  }
+
+  useEffect(() => {
+    loadContacts()
+  }, [])
 
   // Initialize WebSocket connection with auth token
   useEffect(() => {
@@ -54,12 +67,12 @@ export default function ChatLayout({ authToken, apiEndpoint, wsEndpoint, isWidge
     const contactId = message.senderId
     setContacts((prev) =>
       prev.map((contact) =>
-        contact.id === contactId
+        contact.jid === contactId
           ? {
               ...contact,
               lastMessage: message.content || (message.type === "audio" ? "Voice message" : "Media message"),
               lastMessageTime: message.timestamp,
-              unreadCount: activeContact?.id === contactId ? 0 : (contact.unreadCount || 0) + 1,
+              unreadCount: activeContact?.jid === contactId ? 0 : (contact.unreadCount || 0) + 1,
             }
           : contact,
       ),
@@ -81,7 +94,7 @@ export default function ChatLayout({ authToken, apiEndpoint, wsEndpoint, isWidge
       content,
       timestamp: new Date(),
       senderId: "me", // Current user ID
-      receiverId: activeContact.id,
+      receiverId: activeContact.jid,
       status: "sending",
       type,
       replyTo,
@@ -225,7 +238,7 @@ export default function ChatLayout({ authToken, apiEndpoint, wsEndpoint, isWidge
       // Update contact's last message
       setContacts((prev) =>
         prev.map((contact) =>
-          contact.id === contactId
+          contact.jid === contactId
             ? {
                 ...contact,
                 lastMessage:
@@ -373,7 +386,7 @@ export default function ChatLayout({ authToken, apiEndpoint, wsEndpoint, isWidge
   }
 
   return (
-    <div className="flex h-full bg-[#f0f2f5]">
+    <div className="flex h-screen bg-[#f0f2f5]">
       {showSidebar && (
         <div
           className={`${isMobileView ? "w-full" : "w-[380px]"} h-full border-r border-[#d1d7db] bg-white flex-shrink-0 overflow-hidden`}
@@ -396,8 +409,8 @@ export default function ChatLayout({ authToken, apiEndpoint, wsEndpoint, isWidge
             contact={activeContact}
             messages={messages.filter(
               (msg) =>
-                (msg.senderId === activeContact.id && msg.receiverId === "me") ||
-                (msg.senderId === "me" && msg.receiverId === activeContact.id),
+                (msg.senderId === activeContact.jid && msg.receiverId === "me") ||
+                (msg.senderId === "me" && msg.receiverId === activeContact.jid),
             )}
             allContacts={contacts}
             onSendMessage={handleSendMessage}

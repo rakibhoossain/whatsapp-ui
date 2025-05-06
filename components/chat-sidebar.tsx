@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Contact } from "@/lib/types"
-import { formatTime } from "@/lib/utils"
+import { formatTime, formatWhatsAppJID } from "@/lib/utils"
 
 interface ChatSidebarProps {
   contacts: Contact[]
@@ -136,19 +136,19 @@ export default function ChatSidebar({
             <TabsList className="grid w-full grid-cols-3 bg-white p-0 h-auto">
               <TabsTrigger
                 value="all"
-                className="py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00a884] data-[state=active]:text-[#00a884]"
+                className="py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 data-[state=active]:border-[#00a884] data-[state=active]:text-[#00a884]"
               >
                 All
               </TabsTrigger>
               <TabsTrigger
                 value="unread"
-                className="py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00a884] data-[state=active]:text-[#00a884]"
+                className="py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 data-[state=active]:border-[#00a884] data-[state=active]:text-[#00a884]"
               >
                 Unread
               </TabsTrigger>
               <TabsTrigger
                 value="groups"
-                className="py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00a884] data-[state=active]:text-[#00a884]"
+                className="py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 data-[state=active]:border-[#00a884] data-[state=active]:text-[#00a884]"
               >
                 Groups
               </TabsTrigger>
@@ -162,11 +162,11 @@ export default function ChatSidebar({
           filteredArchivedContacts.length > 0 ? (
             filteredArchivedContacts.map((contact) => (
               <ContactItem
-                key={contact.id}
+                key={contact.jid}
                 contact={contact}
-                isActive={activeContact?.id === contact.id}
+                isActive={activeContact?.jid === contact.jid}
                 onSelect={() => onSelectContact(contact)}
-                onArchive={() => onUnarchiveContact(contact.id)}
+                onArchive={() => onUnarchiveContact(contact.jid)}
                 isArchived={true}
               />
             ))
@@ -176,11 +176,11 @@ export default function ChatSidebar({
         ) : filteredContacts.length > 0 ? (
           filteredContacts.map((contact) => (
             <ContactItem
-              key={contact.id}
+              key={contact.jid}
               contact={contact}
-              isActive={activeContact?.id === contact.id}
+              isActive={activeContact?.jid === contact.jid}
               onSelect={() => onSelectContact(contact)}
-              onArchive={() => onArchiveContact(contact.id)}
+              onArchive={() => onArchiveContact(contact.jid)}
               isArchived={false}
             />
           ))
@@ -203,28 +203,26 @@ interface ContactItemProps {
 }
 
 function ContactItem({ contact, isActive, isArchived, onSelect, onArchive }: ContactItemProps) {
-  const [showActions, setShowActions] = useState(false)
+  // const [showActions, setShowActions] = useState(false)
 
   return (
     <div
-      className={`relative flex items-center p-3 cursor-pointer hover:bg-[#f5f6f6] border-t border-[#e9edef] first:border-t-0 ${isActive ? "bg-[#f0f2f5]" : ""}`}
+      className={`group relative flex items-center p-3 cursor-pointer hover:bg-[#f5f6f6] border-t border-[#e9edef] first:border-t-0 ${isActive ? "bg-[#f0f2f5]" : ""}`}
       onClick={onSelect}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
     >
       <Avatar className="h-12 w-12 mr-3">
         <AvatarImage src={contact.avatar || "/placeholder.svg?height=200&width=200"} alt={contact.name} />
         <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
       </Avatar>
 
-      <div className="flex-1 min-w-0 border-b border-[#e9edef] pb-3 -mb-3">
+      <div className="flex-1 min-w-0 pb-3 -mb-3">
         <div className="flex justify-between items-baseline">
-          <h3 className="font-medium truncate text-[#111b21]">{contact.name}</h3>
-          {showActions ? (
+          <h3 className="font-medium truncate text-[#111b21]">{contact.name || formatWhatsAppJID(contact.jid)}</h3>
+
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-gray-500"
+              className="h-6 w-6 text-gray-500 invisible group-hover:visible text-right"
               onClick={(e) => {
                 e.stopPropagation()
                 onArchive()
@@ -232,9 +230,9 @@ function ContactItem({ contact, isActive, isArchived, onSelect, onArchive }: Con
             >
               <Archive size={16} />
             </Button>
-          ) : (
-            <span className="text-xs text-[#667781]">{formatTime(contact.lastMessageTime)}</span>
-          )}
+         
+            {/* <span className="text-xs text-[#667781] group-hover:hidden">{formatTime(contact.lastMessageTime)}</span> */}
+
         </div>
 
         <div className="flex items-center">

@@ -38,3 +38,21 @@ function formatHourMinute(date: Date): string {
 function formatDateShort(date: Date): string {
   return date.toLocaleDateString([], { month: "short", day: "numeric" })
 }
+
+
+export function formatWhatsAppJID(jid: string) {
+  // Extract the numeric part
+  const match = jid.match(/^(\d+)@/);
+  if (!match) return null;
+
+  const number = match[1];
+
+  // Country code (first 3 digits for Bangladesh)
+  const countryCode = number.slice(0, 3); // 880
+  const rest = number.slice(3); // 1814372493
+
+  // Format as per request: +880 1814-372493
+  const formatted = `+${countryCode} ${rest.slice(0, 4)}-${rest.slice(4)}`;
+
+  return formatted;
+}

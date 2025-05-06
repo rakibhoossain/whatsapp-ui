@@ -150,7 +150,7 @@ export default function MessageBubble({
 
   return (
     <div className={`flex ${isOwn ? "justify-end" : "justify-start"} group mb-1`}>
-      <div className="relative max-w-[65%] md:max-w-[75%]">
+      <div className="relative">
         <div
           className={`px-2 py-[6px] rounded-md ${isOwn ? "bg-[#d9fdd3] text-[#111b21]" : "bg-white text-[#111b21]"}`}
           style={{
@@ -181,7 +181,7 @@ export default function MessageBubble({
 
         {/* Message actions */}
         <div
-          className={`absolute ${isOwn ? "left-0" : "right-0"} -translate-x-full top-0 opacity-0 group-hover:opacity-100 transition-opacity`}
+          className={`absolute ${isOwn ? "left-0" : "right-0"}  top-0  transition-opacity opacity-0 group-hover:opacity-100`}
         >
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

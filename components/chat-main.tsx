@@ -221,12 +221,12 @@ export default function ChatMain({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onArchiveChat(contact.id)}>
+                  <DropdownMenuItem onClick={() => onArchiveChat(contact.jid)}>
                     <Archive className="mr-2 h-4 w-4" />
                     Archive chat
                   </DropdownMenuItem>
                   {!isWidget && (
-                    <DropdownMenuItem onClick={() => onBlockContact(contact.id)}>
+                    <DropdownMenuItem onClick={() => onBlockContact(contact.jid)}>
                       <Ban className="mr-2 h-4 w-4" />
                       Block contact
                     </DropdownMenuItem>
@@ -252,7 +252,7 @@ export default function ChatMain({
           backgroundRepeat: "repeat",
         }}
       >
-        <div className="flex flex-col space-y-1 max-w-3xl mx-auto">
+        <div className="flex flex-col space-y-1">
           {filteredMessages.length > 0 ? (
             filteredMessages.map((message, index) => {
               // Group messages by date
@@ -388,7 +388,7 @@ export default function ChatMain({
       {forwardingMessage && (
         <ForwardMessageModal
           message={forwardingMessage}
-          contacts={allContacts.filter((c) => c.id !== contact.id)}
+          contacts={allContacts.filter((c) => c.jid !== contact.jid)}
           onClose={() => setForwardingMessage(null)}
           onForward={handleForwardSubmit}
         />

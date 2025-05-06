@@ -1,5 +1,5 @@
 export interface Contact {
-  id: string
+  jid: string
   name: string
   avatar: string
   lastMessage: string
